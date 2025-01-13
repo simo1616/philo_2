@@ -21,3 +21,16 @@ int	init_data(t_data *data, char **av, int ac)
 	return(1);
 }
 
+void	init_philo(t_philo *philo, t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while(i < data->nb_of_philos)
+	{
+		philo[i].id = i + 1;
+		//printf("philo #%d = son id est %d\n", i, philo[i].id);
+		i++;
+	}
+
+}

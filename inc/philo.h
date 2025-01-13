@@ -21,14 +21,16 @@ typedef struct s_data
 	int	nb_to_eat;
 } t_data;
 
-typedef struct s_phylo
+typedef struct s_philo
 {
 	int	id;
-} t_phylo;
+	//t_data data;
+} t_philo;
 
 int		ft_atoi(char *str);
 int		init_data(t_data *data, char **av, int ac);
 void	error(char *str);
 int		check_data(t_data *data);
 int		check_ac(int ac);
+void	init_philo(t_philo *philo, t_data *data);
 #endif
