@@ -10,7 +10,9 @@ OBJ_PATH 		= obj/
 SRC 			= main.c \
 				init.c \
 				thread.c \
-				utils.c
+				utils.c \
+				check.c \
+				display.c 
 
 SRCS 			= $(addprefix $(SRC_PATH), $(SRC))
 OBJ 			= $(SRC:.c=.o)

@@ -1,0 +1,27 @@
+test philo
+test philo
+
+Ne testez pas avec plus de 200 philosophes.
+
+Ne testez pas avec time_to_die ou time_to_eat ou 
+time_to_sleep définis sur des valeurs inférieures à 60 ms.
+
+Test 1 800 200 200. Le philosophe ne doit pas manger et 
+doit mourir.
+
+Test 5 800 200 200. Aucun philosophe ne devrait mourir.
+
+Test 5 800 200 200 7. Aucun philosophe ne devrait mourir 
+et la simulation devrait s'arrêter 
+lorsque chaque philosophe a mangé au moins 7 fois.
+
+Test 4 410 200 200. Aucun philosophe ne devrait mourir.
+
+Test 4 310 200 100. Un philosophe devrait mourir.
+
+Testez avec 2 philosophes et vérifiez les différents temps : 
+une mort retardée de plus de 10 ms est inacceptable.
+
+Testez avec les valeurs de votre choix pour vérifier toutes 
+les exigences. Assurez-vous que les philosophes meurent 
+au bon moment, qu'ils ne volent pas de fourchettes, etc.
