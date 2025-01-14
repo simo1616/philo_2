@@ -1,7 +1,7 @@
 #include "philo.h"
 
 
-int	init_data(t_data *data, char **av, int ac)
+int	init_data(t_philo **philo, t_data *data, char **av, int ac)
 {
 	data->nb_of_philos = ft_atoi(av[1]);
 	data->time_to_die = ft_atoi(av[2]);
@@ -18,8 +18,11 @@ int	init_data(t_data *data, char **av, int ac)
 	}
 	else
 		data->nb_to_eat = -1;
+	*philo = (t_philo *)malloc((sizeof(t_philo) * data->nb_of_philos));
+	if(!(*philo))
+		return (0);
 	data->start_time = get_time();
-	//printf("\nstart_time a l'init : %lu\n***********\n", data->start_time);
+	data->philo = *philo;
 	return(1);
 }
 
@@ -31,7 +34,7 @@ void	init_philo(t_philo *philo, t_data *data)
 	while(i < data->nb_of_philos)
 	{
 		philo[i].id = i + 1;
+		philo[i].data = data;
 		i++;
 	}
-
 }

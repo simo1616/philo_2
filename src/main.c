@@ -3,26 +3,18 @@
 
 int	main (int ac, char **av)
 {
-	if(!check_ac(ac))
-		return(1);
-
-	//int i = 1;
 	t_data data;
 	t_philo *philo;
 
-	
-
-	if(!init_data(&data, av, ac))
+	if(!check_ac(ac))
+		return(1);
+	if(!init_data(&philo, &data, av, ac))
 		return(1);
 	if(!check_data(&data))
 		return (1);
-	philo = (t_philo *)malloc((sizeof(t_philo) * data.nb_of_philos));
-	if(!philo)
-		return (1);
+
 	init_philo(philo, &data);
 	ft_thread(philo, &data);
-	
-	// ft_thread
 
 	//funct qui free et destroy les thread et mutex
 	free(philo);

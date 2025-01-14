@@ -31,7 +31,7 @@ $(OBJ_PATH)%.o: $(SRC_PATH)%.c
 
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) -lpthread
 	@echo -n "\033[033mcompile terminate\033[0m\n"
 
 clean: 
