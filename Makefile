@@ -12,7 +12,8 @@ SRC 			= main.c \
 				thread.c \
 				utils.c \
 				check.c \
-				display.c 
+				display.c \
+				times.c
 
 SRCS 			= $(addprefix $(SRC_PATH), $(SRC))
 OBJ 			= $(SRC:.c=.o)

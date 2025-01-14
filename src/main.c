@@ -20,12 +20,7 @@ int	main (int ac, char **av)
 	if(!philo)
 		return (1);
 	init_philo(philo, &data);
-	int i = 0;
-	while(i < data.nb_of_philos)
-	{
-		printf("philo #%d = son id est %d\n", i, philo[i].id);
-		i++;
-	}
+	ft_thread(philo, &data);
 	
 	// ft_thread
 
