@@ -27,3 +27,16 @@ int	ft_atoi(char *str)
 	return((int )nb * sign);
 }
 
+void destroy_and_free(t_philo *philo, t_data *data)
+{
+    int i;
+
+    i = 0;
+    while (i < data->nb_of_philos)
+    {
+        pthread_mutex_destroy(&data->forks[i]);
+        i++;
+    }
+    free(data->forks);
+    free(philo);
+}

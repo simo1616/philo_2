@@ -1,5 +1,28 @@
 #include "philo.h"
 
+int	init_mutex(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_of_philos);
+	if(!data->forks)
+		return (0);
+	while(i < data->nb_of_philos)
+	{
+		if(pthread_mutex_init(&data->forks[i], NULL))
+		{
+			while (--i >= 0)
+                pthread_mutex_destroy(&data->forks[i]);
+			error("Mutex_fork_initialising FAILLED");
+            free(data->forks);
+            return (0);
+		}
+		i++;
+	}
+	return (1);
+}
+
 
 int	init_data(t_philo **philo, t_data *data, char **av, int ac)
 {
@@ -23,6 +46,9 @@ int	init_data(t_philo **philo, t_data *data, char **av, int ac)
 		return (0);
 	data->start_time = get_time();
 	data->philo = *philo;
+	if(!init_mutex(data))
+		return (0);
+	
 	return(1);
 }
 

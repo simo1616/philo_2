@@ -25,14 +25,16 @@ typedef struct s_data
 	int				time_to_sleep;
 	int				nb_to_eat;
 	uint64_t		start_time;
-	t_philo	*philo;
+	t_philo			*philo;
+	pthread_mutex_t	*forks;
 } t_data;
 
 struct s_philo
 {
-	int	id;
+	int			id;
 	pthread_t	thread;
-	t_data *data;
+	uint16_t	last_meal;
+	t_data		*data;
 };
 
 int			ft_atoi(char *str);
@@ -40,6 +42,7 @@ void		error(char *str);
 
 int			init_data(t_philo **philo, t_data *data, char **av, int ac);
 void		init_philo(t_philo *philo, t_data *data);
+int			init_mutex(t_data *data);
 int			ft_thread(t_philo *philo, t_data *data);
 void		*ft_routine(void *arg);
 
@@ -48,4 +51,6 @@ int			check_ac(int ac);
 void		display_status(t_philo philo, char *status, t_data *data);
 uint64_t	get_time(void);
 uint64_t	get_cur_time(uint64_t start_time);
+
+void 		destroy_and_free(t_philo *philo, t_data *data);
 #endif
