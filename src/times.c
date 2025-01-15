@@ -1,5 +1,24 @@
 #include "philo.h"
 
+void	ft_usleep(uint64_t duration, t_data *data)
+{
+	uint64_t start_time;
+
+	start_time = get_time();
+	while((get_time() - start_time) < duration)
+	{
+		usleep(100);
+		pthread_mutex_lock(&data->death_mutex);
+		if (data->death_rep)
+		{
+			pthread_mutex_unlock(&data->death_mutex);
+			break;
+		}
+		pthread_mutex_unlock(&data->death_mutex);
+	}
+}
+
+
 uint64_t get_time(void)
 {
     struct timeval t;
