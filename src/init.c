@@ -30,6 +30,7 @@ int	init_data(t_philo **philo, t_data *data, char **av, int ac)
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
 	data->time_to_sleep = ft_atoi(av[4]);
+	data->death_rep = 0;
 	if(ac == 6)
 	{
 		data->nb_to_eat = ft_atoi(av[5]);
@@ -41,12 +42,11 @@ int	init_data(t_philo **philo, t_data *data, char **av, int ac)
 	}
 	else
 		data->nb_to_eat = -1;
-	data->death_rep = 0;
 	*philo = (t_philo *)malloc((sizeof(t_philo) * data->nb_of_philos));
 	if(!(*philo))
 		return (0);
-	data->start_time = get_time();
 	data->philo = *philo;
+	data->start_time = get_time();
 	if(!init_forks_mutex(data))
 		return (0);
 	if(pthread_mutex_init(&data->death_mutex, NULL))

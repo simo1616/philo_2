@@ -7,7 +7,6 @@ void	ft_usleep(uint64_t duration, t_data *data)
 	start_time = get_time();
 	while((get_time() - start_time) < duration)
 	{
-		usleep(100);
 		pthread_mutex_lock(&data->death_mutex);
 		if (data->death_rep)
 		{
@@ -15,6 +14,7 @@ void	ft_usleep(uint64_t duration, t_data *data)
 			break;
 		}
 		pthread_mutex_unlock(&data->death_mutex);
+		usleep(50);
 	}
 }
 

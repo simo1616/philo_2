@@ -12,19 +12,17 @@ int	main (int ac, char **av)
 		return(1);
 	if(!check_data(&data))
 		return (1);
+	if (data.nb_of_philos == 1)
+    {
+        display_status(philo[0], IS_TK_FORK, &data);
+        ft_usleep(data.time_to_die, &data);
+        display_status(philo[0], IS_DIE, &data);
+        destroy_and_free(philo, &data);
+        return (0);
+    }
 
 	init_philo(philo, &data);
 	ft_thread(philo, &data);
-
-	//funct qui free et destroy les thread et mutex
-	free(philo);
+	destroy_and_free(philo, &data);
 	return (0);
 }
-
-	// printf("tous les étape sont bien dérouler \n");
-	// printf("AFFICHAGE DES DATA \n");
-	// printf("nb_of_philos = %d\n", data.nb_of_philos);
-	// printf("time_to_die = %d\n", data.time_to_die);
-	// printf("time_to_eat = %d\n", data.time_to_eat);
-	// printf("time_to_sleep = %d\n", data.time_to_sleep);
-	// printf("nb_to_eat = %d\n", data.nb_to_eat);

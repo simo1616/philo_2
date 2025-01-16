@@ -30,6 +30,7 @@ typedef struct s_data
 	t_philo			*philo;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	death_mutex;
+	pthread_t		monitor;
 } t_data;
 
 struct s_philo
@@ -37,7 +38,7 @@ struct s_philo
 	int			id;
 	int			cnt_meals;
 	pthread_t	thread;
-	uint16_t	last_meal;
+	uint64_t	last_meal;
 	t_data		*data;
 };
 
@@ -56,6 +57,7 @@ void		display_status(t_philo philo, char *status, t_data *data);
 uint64_t	get_time(void);
 uint64_t	get_cur_time(uint64_t start_time);
 void		ft_usleep(uint64_t duration, t_data *data);
+void		*death_monitor(void *arg);
 
 void 		destroy_and_free(t_philo *philo, t_data *data);
 #endif
