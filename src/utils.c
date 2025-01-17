@@ -14,8 +14,8 @@
 
 int	ft_atoi(char *str)
 {
-	int	i;
-	int sign;
+	int		i;
+	int		sign;
 	long	nb;
 
 	i = 0;
@@ -25,7 +25,7 @@ int	ft_atoi(char *str)
 		i++;
 	while (str[i] && (str[i] == '-' || str[i] == '+'))
 	{
-		if(str[i] == '-')
+		if (str[i] == '-')
 			sign = -sign;
 		i++;
 	}
@@ -34,21 +34,21 @@ int	ft_atoi(char *str)
 		nb = (nb * 10) + (str[i] - '0');
 		i++;
 	}
-	if(nb * sign > INT_MAX || nb * sign < INT_MIN )
+	if (nb * sign > INT_MAX || nb * sign < INT_MIN)
 		return (-1);
-	return((int )nb * sign);
+	return ((int)nb * sign);
 }
 
-void destroy_and_free(t_philo *philo, t_data *data)
+void	destroy_and_free(t_philo *philo, t_data *data)
 {
-    int i;
+	int	i;
 
-    i = 0;
-    while (i < data->nb_of_philos)
-    {
-        pthread_mutex_destroy(&data->forks[i]);
-        i++;
-    }
-    free(data->forks);
-    free(philo);
+	i = 0;
+	while (i < data->nb_of_philos)
+	{
+		pthread_mutex_destroy(&data->forks[i]);
+		i++;
+	}
+	free(data->forks);
+	free(philo);
 }

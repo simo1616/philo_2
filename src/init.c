@@ -6,7 +6,7 @@
 /*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 09:45:12 by mbendidi          #+#    #+#             */
-/*   Updated: 2025/01/17 09:45:15 by mbendidi         ###   ########.fr       */
+/*   Updated: 2025/01/17 10:07:27 by mbendidi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,56 +18,61 @@ int	init_forks_mutex(t_data *data)
 
 	i = 0;
 	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_of_philos);
-	if(!data->forks)
+	if (!data->forks)
 		return (0);
-	while(i < data->nb_of_philos)
+	while (i < data->nb_of_philos)
 	{
-		if(pthread_mutex_init(&data->forks[i], NULL))
+		if (pthread_mutex_init(&data->forks[i], NULL))
 		{
 			while (--i >= 0)
-                pthread_mutex_destroy(&data->forks[i]);
+				pthread_mutex_destroy(&data->forks[i]);
 			error("Mutex_fork_initialising FAILLED");
-            free(data->forks);
-            return (0);
+			free(data->forks);
+			return (0);
 		}
 		i++;
 	}
 	return (1);
 }
 
-
-int	init_data(t_philo **philo, t_data *data, char **av, int ac)
+int	init_values(t_data *data, char **av, int ac)
 {
 	data->nb_of_philos = ft_atoi(av[1]);
 	data->time_to_die = ft_atoi(av[2]);
 	data->time_to_eat = ft_atoi(av[3]);
 	data->time_to_sleep = ft_atoi(av[4]);
 	data->death_rep = 0;
-	if(ac == 6)
+	if (ac == 6)
 	{
 		data->nb_to_eat = ft_atoi(av[5]);
-		if(data->nb_to_eat <= 0)
+		if (data->nb_to_eat <= 0)
 		{
 			error("Invalid nb_to_eat");
-			return(0);
+			return (0);
 		}
 	}
 	else
 		data->nb_to_eat = -1;
+	return (1);
+}
+
+int	init_data(t_philo **philo, t_data *data, char **av, int ac)
+{
+	if (!init_values(data, av, ac))
+		return (0);
 	*philo = (t_philo *)malloc((sizeof(t_philo) * data->nb_of_philos));
-	if(!(*philo))
+	if (!(*philo))
 		return (0);
 	data->philo = *philo;
 	data->start_time = get_time();
-	if(!init_forks_mutex(data))
+	if (!init_forks_mutex(data))
 		return (0);
-	if(pthread_mutex_init(&data->death_mutex, NULL))
+	if (pthread_mutex_init(&data->death_mutex, NULL))
 	{
 		error("Mutex_initialising FAILLED");
 		return (0);
 	}
-	
-	return(1);
+	return (1);
 }
 
 void	init_philo(t_philo *philo, t_data *data)
@@ -75,7 +80,7 @@ void	init_philo(t_philo *philo, t_data *data)
 	int	i;
 
 	i = 0;
-	while(i < data->nb_of_philos)
+	while (i < data->nb_of_philos)
 	{
 		philo[i].id = i + 1;
 		philo[i].data = data;
