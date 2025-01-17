@@ -6,7 +6,7 @@
 #    By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/17 09:46:23 by mbendidi          #+#    #+#              #
-#    Updated: 2025/01/17 11:20:50 by mbendidi         ###   ########.fr        #
+#    Updated: 2025/01/17 11:23:50 by mbendidi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -74,6 +74,6 @@ fclean: clean
 re: fclean all
 
 norm:
-	@norminette $(SRC) ./inc/*.h
+	@norminette ./src/*.c ./inc/*.h
 
 .PHONY: all clean fclean re norm header
