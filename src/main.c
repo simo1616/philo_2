@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:44:53 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/01/17 09:44:56 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 
@@ -12,6 +24,7 @@ int	main (int ac, char **av)
 		return(1);
 	if(!check_data(&data))
 		return (1);
+	init_philo(philo, &data);
 	if (data.nb_of_philos == 1)
     {
         display_status(philo[0], IS_TK_FORK, &data);
@@ -21,7 +34,6 @@ int	main (int ac, char **av)
         return (0);
     }
 
-	init_philo(philo, &data);
 	ft_thread(philo, &data);
 	destroy_and_free(philo, &data);
 	return (0);
