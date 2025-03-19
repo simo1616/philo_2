@@ -1,0 +1,542 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   check.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:45:29 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/01/17 09:45:31 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	check_ac(int ac)
+{
+	if (ac < 5 || ac > 6)
+	{
+		printf("\033[091mError: please enter : \033[0m\n");
+		printf("\033[093m./philo <Philosophers> <time_to_die> \033[0m");
+		printf("\033[093m<time_to_eat> <time_to_sleep> (<nb_eat>)\033[0m\n");
+		return (0);
+	}
+	return (1);
+}
+
+int	check_data(t_data *data)
+{
+	if (data->nb_of_philos < 1)
+	{
+		error("\033[091mINVALIDE ARG OF NB_OF_PHILOS\033[0m");
+		return (0);
+	}
+	if (data->time_to_die < 60)
+	{
+		error("\033[091mINVALIDE ARG OF TIME_TO_DIE\033[0m");
+		return (0);
+	}
+	if (data->time_to_eat < 60)
+	{
+		error("\033[091mINVALIDE ARG OF TIME_TO_EAT\033[0m");
+		return (0);
+	}
+	if (data->time_to_sleep < 60)
+	{
+		error("\033[091mINVALIDE ARG OF TIME_TO_SLEEP\033[0m");
+		return (0);
+	}
+	return (1);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   death.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 10:27:48 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/01/17 10:33:32 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	check_if_dead(t_data *data, t_philo *philo)
+{
+	if (get_time() - philo->last_meal > (uint64_t)data->time_to_die)
+	{
+		display_status(*philo, IS_DIE, data);
+		data->death_rep = 1;
+		return (1);
+	}
+	return (0);
+}
+
+int	check_meals_count(t_data *data, int i)
+{
+	if (data->nb_to_eat != -1 && data->philo[i].cnt_meals < data->nb_to_eat)
+		return (1);
+	return (0);
+}
+
+int	monitor_philos(t_data *data, int *all_ate_enough)
+{
+	int	i;
+
+	i = 0;
+	*all_ate_enough = 1;
+	while (i < data->nb_of_philos)
+	{
+		pthread_mutex_lock(&data->death_mutex);
+		if (data->death_rep)
+		{
+			pthread_mutex_unlock(&data->death_mutex);
+			return (1);
+		}
+		if (check_if_dead(data, &data->philo[i]))
+		{
+			pthread_mutex_unlock(&data->death_mutex);
+			return (1);
+		}
+		if (check_meals_count(data, i))
+			*all_ate_enough = 0;
+		pthread_mutex_unlock(&data->death_mutex);
+		i++;
+	}
+	return (0);
+}
+
+void	*death_monitor(void *arg)
+{
+	t_data	*data;
+	int		all_ate_enough;
+
+	data = (t_data *)arg;
+	while (1)
+	{
+		if (monitor_philos(data, &all_ate_enough))
+			return (NULL);
+		if (data->nb_to_eat != -1 && all_ate_enough)
+		{
+			pthread_mutex_lock(&data->death_mutex);
+			data->death_rep = 1;
+			pthread_mutex_unlock(&data->death_mutex);
+			return (NULL);
+		}
+		usleep(50);
+	}
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   display.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:45:38 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/03/19 14:32:41 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+void	display_status(t_philo philo, char *status, t_data *data)
+{
+	pthread_mutex_lock(&data->print_mutex);
+	printf("%04lu #%d %s\n", get_cur_time(data->start_time), philo.id, status);
+	pthread_mutex_unlock(&data->print_mutex);
+}
+
+void	error(char *str)
+{
+	printf("\033[091m%s\033[0m\n", str);
+	return ;
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:45:12 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/03/19 14:29:00 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	init_forks_mutex(t_data *data)
+{
+	int	i;
+
+	i = 0;
+	data->forks = malloc(sizeof(pthread_mutex_t) * data->nb_of_philos);
+	if (!data->forks)
+		return (0);
+	while (i < data->nb_of_philos)
+	{
+		if (pthread_mutex_init(&data->forks[i], NULL))
+		{
+			while (--i >= 0)
+				pthread_mutex_destroy(&data->forks[i]);
+			error("Mutex_fork_initialising FAILLED");
+			free(data->forks);
+			return (0);
+		}
+		i++;
+	}
+	return (1);
+}
+
+int	init_values(t_data *data, char **av, int ac)
+{
+	data->nb_of_philos = ft_atoi(av[1]);
+	data->time_to_die = ft_atoi(av[2]);
+	data->time_to_eat = ft_atoi(av[3]);
+	data->time_to_sleep = ft_atoi(av[4]);
+	data->death_rep = 0;
+	if (ac == 6)
+	{
+		data->nb_to_eat = ft_atoi(av[5]);
+		if (data->nb_to_eat <= 0)
+		{
+			error("Invalid nb_to_eat");
+			return (0);
+		}
+	}
+	else
+		data->nb_to_eat = -1;
+	return (1);
+}
+
+int	init_data(t_philo **philo, t_data *data, char **av, int ac)
+{
+	if (!init_values(data, av, ac))
+		return (0);
+	*philo = (t_philo *)malloc((sizeof(t_philo) * data->nb_of_philos));
+	if (!(*philo))
+		return (0);
+	data->philo = *philo;
+	data->start_time = get_time();
+	if (!init_forks_mutex(data))
+		return (0);
+	if (pthread_mutex_init(&data->death_mutex, NULL))
+	{
+		error("Mutex_initialising FAILLED");
+		return (0);
+	}
+	if (pthread_mutex_init(&data->print_mutex, NULL))
+	{
+		error("Mutex_initialising FAILLED");
+		return (0);
+	}
+	return (1);
+}
+
+void	init_philo(t_philo *philo, t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->nb_of_philos)
+	{
+		philo[i].id = i + 1;
+		philo[i].data = data;
+		philo[i].last_meal = get_time();
+		philo[i].cnt_meals = 0;
+		i++;
+	}
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:44:53 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/01/17 09:53:08 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	main(int ac, char **av)
+{
+	t_data	data;
+	t_philo	*philo;
+
+	if (!check_ac(ac))
+		return (1);
+	if (!init_data(&philo, &data, av, ac))
+		return (1);
+	if (!check_data(&data))
+		return (1);
+	init_philo(philo, &data);
+	if (data.nb_of_philos == 1)
+	{
+		display_status(philo[0], IS_TK_FORK, &data);
+		ft_usleep(data.time_to_die, &data);
+		display_status(philo[0], IS_DIE, &data);
+		destroy_and_free(philo, &data);
+		return (0);
+	}
+	ft_thread(philo, &data);
+	destroy_and_free(philo, &data);
+	return (0);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   routine.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 10:19:29 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/03/19 14:49:46 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int take_forks(t_philo *philo, int fork1, int fork2)
+{
+    int first = (fork1 < fork2) ? fork1 : fork2;  // Fourchette avec index le plus petit
+    int second = (fork1 < fork2) ? fork2 : fork1; // Fourchette avec index le plus grand
+
+    if (check_death(philo, philo->data))
+        return (0);
+    pthread_mutex_lock(&philo->data->forks[first]);
+    if (check_death(philo, philo->data)) {
+        pthread_mutex_unlock(&philo->data->forks[first]);
+        return (0);
+    }
+    display_status(*philo, IS_TK_FORK, philo->data);
+    pthread_mutex_lock(&philo->data->forks[second]);
+    if (check_death(philo, philo->data)) {
+        pthread_mutex_unlock(&philo->data->forks[first]);
+        pthread_mutex_unlock(&philo->data->forks[second]);
+        return (0);
+    }
+    display_status(*philo, IS_TK_FORK, philo->data);
+    return (1);
+}
+
+int	eat_action(t_philo *philo)
+{
+	pthread_mutex_lock(&philo->data->death_mutex);
+	philo->last_meal = get_time();
+	display_status(*philo, IS_EAT, philo->data);
+	philo->cnt_meals++;
+	pthread_mutex_unlock(&philo->data->death_mutex);
+	ft_usleep(philo->data->time_to_eat, philo->data);
+	return (1);
+}
+
+int	sleep_and_think(t_philo *philo)
+{
+	if (check_death(philo, philo->data))
+		return (0);
+	display_status(*philo, IS_SLEEP, philo->data);
+	ft_usleep(philo->data->time_to_sleep, philo->data);
+	if (check_death(philo, philo->data))
+		return (0);
+	display_status(*philo, IS_THINK, philo->data);
+	return (1);
+}
+
+void	*ft_routine(void *arg)
+{
+	t_philo	*philo;
+	t_data	*data;
+	int		left_fork;
+	int		right_fork;
+
+	philo = (t_philo *)arg;
+	data = philo->data;
+	left_fork = philo->id - 1;
+	right_fork = philo->id % data->nb_of_philos;
+	if (philo->id % 2 == 0)
+		usleep(1000);
+	while (1)
+	{
+		if (!take_forks(philo, left_fork, right_fork))
+			return (NULL);
+		if (!eat_action(philo))
+			return (NULL);
+		pthread_mutex_unlock(&data->forks[left_fork]);
+		pthread_mutex_unlock(&data->forks[right_fork]);
+		if (data->nb_to_eat != -1 && philo->cnt_meals >= data->nb_to_eat)
+			return (NULL);
+		if (!sleep_and_think(philo))
+			return (NULL);
+	}
+	return (NULL);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   thread.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:45:52 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/03/19 14:52:56 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	check_death(t_philo *philo, t_data *data)
+{
+	(void) philo;
+	pthread_mutex_lock(&data->death_mutex);
+	if (data->death_rep)
+	{
+		pthread_mutex_unlock(&data->death_mutex);
+		// if (philo->id % 2 == 0)
+		// 	pthread_mutex_unlock(&data->forks[philo->id % data->nb_of_philos]);
+		// else
+		// 	pthread_mutex_unlock(&data->forks[philo->id - 1]);
+		return (1);
+	}
+	pthread_mutex_unlock(&data->death_mutex);
+	return (0);
+}
+
+int	ft_thread(t_philo *philo, t_data *data)
+{
+	int	i;
+
+	i = 0;
+	if (pthread_create(&data->monitor, NULL, death_monitor, data))
+	{
+		error("Erreur lors de la création du thread moniteur\n");
+		return (0);
+	}
+	while (i < data->nb_of_philos)
+	{
+		if (pthread_create(&philo[i].thread, NULL, ft_routine, &philo[i]))
+		{
+			error("Erreur lors de la création du thread\n");
+			return (0);
+		}
+		i++;
+	}
+	pthread_join(data->monitor, NULL);
+	i = 0;
+	while (i < data->nb_of_philos)
+	{
+		pthread_join(philo[i].thread, NULL);
+		i++;
+	}
+	return (1);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   times.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:45:58 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/01/17 09:45:59 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+void	ft_usleep(uint64_t duration, t_data *data)
+{
+	uint64_t	start_time;
+
+	start_time = get_time();
+	while ((get_time() - start_time) < duration)
+	{
+		pthread_mutex_lock(&data->death_mutex);
+		if (data->death_rep)
+		{
+			pthread_mutex_unlock(&data->death_mutex);
+			break ;
+		}
+		pthread_mutex_unlock(&data->death_mutex);
+		usleep(50);
+	}
+}
+
+uint64_t	get_time(void)
+{
+	struct timeval	t;
+
+	if (gettimeofday(&t, NULL))
+	{
+		error("gettimeofday() FAILED!\n");
+		return (-1);
+	}
+	return ((t.tv_sec * (uint64_t)1000) + (t.tv_usec / 1000));
+}
+
+uint64_t	get_cur_time(uint64_t start_time)
+{
+	uint64_t	cur_time;
+
+	cur_time = get_time();
+	return (cur_time - start_time);
+}
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/17 09:46:05 by mbendidi          #+#    #+#             */
+/*   Updated: 2025/03/19 14:30:00 by mbendidi         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	ft_atoi(char *str)
+{
+	int		i;
+	int		sign;
+	long	nb;
+
+	i = 0;
+	sign = 1;
+	nb = 0;
+	while (str[i] && ((str[i] >= 13 && str[i] <= 9) || str[i] == 32))
+		i++;
+	while (str[i] && (str[i] == '-' || str[i] == '+'))
+	{
+		if (str[i] == '-')
+			sign = -sign;
+		i++;
+	}
+	while (str[i] && (str[i] >= '0' && str[i] <= '9'))
+	{
+		nb = (nb * 10) + (str[i] - '0');
+		i++;
+	}
+	if (nb * sign > INT_MAX || nb * sign < INT_MIN)
+		return (-1);
+	return ((int)nb * sign);
+}
+
+void	destroy_and_free(t_philo *philo, t_data *data)
+{
+	int	i;
+
+	i = 0;
+	while (i < data->nb_of_philos)
+	{
+		pthread_mutex_destroy(&data->forks[i]);
+		pthread_mutex_destroy(&data->print_mutex);
+		i++;
+	}
+	free(data->forks);
+	free(philo);
+}

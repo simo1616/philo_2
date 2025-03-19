@@ -6,7 +6,7 @@
 /*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 09:45:52 by mbendidi          #+#    #+#             */
-/*   Updated: 2025/01/17 10:29:45 by mbendidi         ###   ########.fr       */
+/*   Updated: 2025/03/19 15:15:02 by mbendidi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,11 @@
 
 int	check_death(t_philo *philo, t_data *data)
 {
+	(void) philo;
 	pthread_mutex_lock(&data->death_mutex);
 	if (data->death_rep)
 	{
 		pthread_mutex_unlock(&data->death_mutex);
-		if (philo->id % 2 == 0)
-			pthread_mutex_unlock(&data->forks[philo->id % data->nb_of_philos]);
-		else
-			pthread_mutex_unlock(&data->forks[philo->id - 1]);
 		return (1);
 	}
 	pthread_mutex_unlock(&data->death_mutex);

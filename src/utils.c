@@ -6,7 +6,7 @@
 /*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 09:46:05 by mbendidi          #+#    #+#             */
-/*   Updated: 2025/01/17 09:46:06 by mbendidi         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:18:54 by mbendidi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ void	destroy_and_free(t_philo *philo, t_data *data)
 		pthread_mutex_destroy(&data->forks[i]);
 		i++;
 	}
+	pthread_mutex_destroy(&data->print_mutex);
 	free(data->forks);
 	free(philo);
 }

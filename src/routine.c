@@ -6,7 +6,7 @@
 /*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 10:19:29 by mbendidi          #+#    #+#             */
-/*   Updated: 2025/01/17 10:49:22 by mbendidi         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:29:13 by mbendidi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,29 @@
 
 int	take_forks(t_philo *philo, int left_fork, int right_fork)
 {
-	if (check_death(philo, philo->data))
-		return (0);
-	pthread_mutex_lock(&philo->data->forks[left_fork]);
+	int	first;
+	int	second;
+
+	if (philo->id % 2 == 0)
+	{
+		first = right_fork;
+		second = left_fork;
+	}
+	else
+	{
+		first = left_fork;
+		second = right_fork;
+	}
 	if (check_death(philo, philo->data))
 		return (0);
 	display_status(*philo, IS_TK_FORK, philo->data);
-	pthread_mutex_lock(&philo->data->forks[right_fork]);
+	pthread_mutex_lock(&philo->data->forks[second]);
 	if (check_death(philo, philo->data))
+	{
+		pthread_mutex_unlock(&philo->data->forks[first]);
+		pthread_mutex_unlock(&philo->data->forks[second]);
 		return (0);
+	}
 	display_status(*philo, IS_TK_FORK, philo->data);
 	return (1);
 }
@@ -62,7 +76,7 @@ void	*ft_routine(void *arg)
 	left_fork = philo->id - 1;
 	right_fork = philo->id % data->nb_of_philos;
 	if (philo->id % 2 == 0)
-		usleep(1000);
+		usleep(100000);
 	while (1)
 	{
 		if (!take_forks(philo, left_fork, right_fork))

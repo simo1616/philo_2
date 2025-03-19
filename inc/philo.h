@@ -6,7 +6,7 @@
 /*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 09:46:16 by mbendidi          #+#    #+#             */
-/*   Updated: 2025/01/17 10:29:15 by mbendidi         ###   ########.fr       */
+/*   Updated: 2025/03/19 16:30:12 by mbendidi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct s_data
 	t_philo				*philo;
 	pthread_mutex_t		*forks;
 	pthread_mutex_t		death_mutex;
+	pthread_mutex_t		print_mutex;
 	pthread_t			monitor;
 }						t_data;
 

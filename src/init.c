@@ -6,7 +6,7 @@
 /*   By: mbendidi <mbendidi@student.42lausanne.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 09:45:12 by mbendidi          #+#    #+#             */
-/*   Updated: 2025/01/17 10:07:27 by mbendidi         ###   ########.fr       */
+/*   Updated: 2025/03/19 14:29:00 by mbendidi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,11 @@ int	init_data(t_philo **philo, t_data *data, char **av, int ac)
 	if (!init_forks_mutex(data))
 		return (0);
 	if (pthread_mutex_init(&data->death_mutex, NULL))
+	{
+		error("Mutex_initialising FAILLED");
+		return (0);
+	}
+	if (pthread_mutex_init(&data->print_mutex, NULL))
 	{
 		error("Mutex_initialising FAILLED");
 		return (0);
